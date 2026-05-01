@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>CineMatch · Movie Discovery Hub</title>
+    <!-- Google Fonts & minimal modern reset -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 (free icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #0b0f1c 0%, #0a0e1a 100%);
+            color: #f0f3fa;
+            line-height: 1.4;
+            scroll-behavior: smooth;
+        }
+
+        /* custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e2438;
+            border-radius: 12px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ffb347;
+            border-radius: 12px;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem 3rem;
+        }
+
+        /* header & branding */
+        .brand {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 180, 71, 0.3);
+            padding-bottom: 0.75rem;
+        }
+        .logo h1 {
+            font-weight: 700;
+            font-size: 1.9rem;
+            background: linear-gradient(135deg, #FFD166, #FF8C42);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .logo span {
+            font-size: 0.85rem;
+            color: #9aa4bf;
+            font-weight: 400;
+            margin-left: 6px;
+        }
+        .trend-badge {
+            background: rgba(255, 140, 66, 0.18);
+            backdrop-filter: blur(4px);
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .trend-badge i {
+            color: #FF8C42;
+        }
+
+        /* search area */
+        .search-section {
+            margin: 2rem 0 2.2rem;
+        }
+        .search-card {
+            background: rgba(18, 24, 40, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 2rem;
+            padding: 0.5rem 0.5rem 0.5rem 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            border: 1px solid rgba(255, 180, 71, 0.4);
+            transition: box-shadow 0.2s;
+        }
+        .search-card:focus-within {
+            box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.4);
+        }
+        .search-card i {
+            font-size: 1.3rem;
+            color: #ffb347;
+        }
+        #searchInput {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 1rem 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: white;
+            outline: none;
+            min-width: 180px;
+        }
+        #searchInput::placeholder {
+            color: #8f9bb3;
+            font-weight: 400;
+        }
+        .search-actions {
+            display: flex;
+            gap: 0.6rem;
+        }
+        button {
+            background: #2a2f45;
+            border: none;
+            padding: 0.6rem 1.3rem;
+            border-radius: 2.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #f0f3fa;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        button i {
+            font-size: 0.9rem;
+        }
+        .btn-primary {
+            background: #FF8C42;
+            color: #0e121f;
+            box-shadow: 0 4px 12px rgba(255, 140, 66, 0.2);
+        }
+        .btn-primary:hover {
+            background: #ff9e5e;
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid #ffb34770;
+        }
+        .btn-outline:hover {
+            background: #ffb34730;
+            border-color: #ffb347;
+        }
+
+        /* filters row */
+        .filters-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0 2rem;
+        }
+        .year-filter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #101624;
+            padding: 0.35rem 1rem;
+            border-radius: 60px;
+        }
+        .year-filter label {
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        #yearSelect {
+            background: #1e253e;
+            border: 1px solid #2f3a5c;
+            padding: 0.4rem 0.8rem;
+            border-radius: 2rem;
+            color: white;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+        }
+        .results-info {
+            font-size: 0.85rem;
+            background: #0f1422aa;
+            padding: 0.3rem 1rem;
+            border-radius: 60px;
+        }
+
+        /* movie grid */
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 1.8rem;
+            margin-top: 0.5rem;
+        }
+        .movie-card {
+            background: linear-gradient(145deg, #12182e, #0d1224);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            transition: transform 0.25s ease, box-shadow 0.2s;
+            cursor: pointer;
+            border: 1px solid rgba(255, 180, 71, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+        .movie-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.5);
+            border-color: #ffb34780;
+        }
+        .poster-wrapper {
+            position: relative;
+            aspect-ratio: 2 / 3;
+            background: #070a14;
+        }
+        .movie-poster {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.2s;
+        }
+        .fallback-poster {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: #1b213b;
+            color: #ffb347;
+            font-size: 2.5rem;
+        }
+        .movie-year-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #0b0f1ccc;
+            backdrop-filter: blur(5px);
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #ffd966;
+        }
+        .movie-info {
+            padding: 1rem 0.9rem 1.2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .movie-title {
+            font-weight: 700;
+            font-size: 1rem;
+            line-height: 1.3;
+            margin-bottom: 0.35rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .movie-meta {
+            display: flex;
+            gap: 10px;
+            font-size: 0.75rem;
+            color: #9aa4ca;
+            margin: 8px 0 6px;
+        }
+        .rating {
+            color: #FFD966;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .overview {
+            font-size: 0.73rem;
+            color: #b9c2e6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-top: 6px;
+            opacity: 0.9;
+        }
+
+        /* loading & empty states */
+        .loading-state, .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 2rem;
+            margin-top: 2rem;
+        }
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #2a2f45;
+            border-top: 4px solid #ff8c42;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden {
+            display: none;
+        }
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            font-size: 0.75rem;
+            color: #5f6b8f;
+            border-top: 1px solid #1e253e;
+            padding-top: 1.5rem;
+        }
+        @media (max-width: 640px) {
+            .app-container { padding: 1rem 1rem 2rem; }
+            .brand { flex-direction: column; gap: 12px; }
+            .search-card { padding-left: 1rem; }
+            .movies-grid { gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+            .movie-title { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="brand">
+        <div class="logo">
+            <h1>CineMatch <span>· discover & explore</span></h1>
+        </div>
+        <div class="trend-badge">
+            <i class="fas fa-film"></i> <span id="trendingLabel">🔥 Trending picks</span>
+        </div>
+    </div>
+
+    <div class="search-section">
+        <div class="search-card">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search by title... (e.g., Inception, Dune, Avatar)" autocomplete="off">
+            <div class="search-actions">
+                <button id="searchBtn" class="btn-primary"><i class="fas fa-arrow-right"></i> Search</button>
+                <button id="resetBtn" class="btn-outline"><i class="fas fa-undo-alt"></i> Reset</button>
+            </div>
+        </div>
+        <div class="filters-row">
+            <div class="year-filter">
+                <label><i class="fas fa-calendar-alt"></i> Year</label>
+                <select id="yearSelect">
+                    <option value="all">All years</option>
+                </select>
+            </div>
+            <div class="results-info" id="resultCounter">
+                <i class="fas fa-ticket-alt"></i> <span id="movieCount">0</span> movies
+            </div>
+        </div>
+    </div>
+
+    <!-- dynamic movie grid -->
+    <div id="moviesContainer" class="movies-grid"></div>
+
+    <!-- loading & empty message -->
+    <div id="loadingSpinner" class="loading-state hidden">
+        <div class="loader"></div>
+        <p>Fetching cinematic gems ...</p>
+    </div>
+    <div id="emptyMessage" class="empty-state hidden">
+        <i class="fas fa-film-slash" style="font-size: 3rem; opacity: 0.6;"></i>
+        <p style="margin-top: 1rem;">No movies found. Try adjusting filters or search term.</p>
+        <button id="resetEmptyBtn" class="btn-outline" style="margin-top: 1rem;">Explore trending</button>
+    </div>
+
+    <footer>
+        <i class="fas fa-crown"></i> powered by TMDb API · endless entertainment
+    </footer>
+</div>
+
+<script>
+    // ------------------------------
+    // Movie Application using TMDb API (free, requires API key)
+    // For demo we use a public demo key (but replace with your own ideally)
+    // Note: this key is for educational & showcase; in production use environment var.
+    // TheMovieDB API v3
+    const API_KEY = 'fbb2c0e9ee6bcb4e1f34da16b52d1296';   // demo key (works for read-only)
+    const BASE_URL = 'https://api.themoviedb.org/3';
+    const IMG_BASE = 'https://image.tmdb.org/t/p/w500';
+
+    // DOM elements
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const resetEmptyBtn = document.getElementById('resetEmptyBtn');
+    const yearSelect = document.getElementById('yearSelect');
+    const moviesContainer = document.getElementById('moviesContainer');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const emptyMessage = document.getElementById('emptyMessage');
+    const movieCountSpan = document.getElementById('movieCount');
+    const trendingLabelSpan = document.getElementById('trendingLabel');
+
+    // state
+    let currentMovies = [];       // store current list of movie objects
+    let currentQuery = '';       // search term (empty means trending)
+    let currentYear = 'all';
+
+    // ---------- helper: populate year filter (from 1900 to current year)
+    function populateYearFilter() {
+        const currentYearNum = new Date().getFullYear();
+        yearSelect.innerHTML = '<option value="all">All years</option>';
+        for (let y = currentYearNum; y >= 1900; y--) {
+            const option = document.createElement('option');
+            option.value = y;
+            option.textContent = y;
+            yearSelect.appendChild(option);
+        }
+    }
+
+    // show loading / hide content
+    function setLoading(isLoading) {
+        if (isLoading) {
+            moviesContainer.classList.add('hidden');
+            emptyMessage.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+        } else {
+            loadingSpinner.classList.add('hidden');
+        }
+    }
+
+    // render movies based on currentMovies + optional filter year applied client-side (year filtering after fetch)
+    function renderMovies() {
+        // year filtering client-side (since API year filter can be combined but we keep consistent)
+        let filtered = [...currentMovies];
+        if (currentYear !== 'all') {
+            const targetYear = parseInt(currentYear, 10);
+            filtered = filtered.filter(movie => {
+                if (!movie.release_date) return false;
+                const movieYear = new Date(movie.release_date).getFullYear();
+                return movieYear === targetYear;
+            });
+        }
+
+        if (filtered.length === 0) {
+            moviesContainer.classList.add('hidden');
+            emptyMessage.classList.remove('hidden');
+            movieCountSpan.innerText = '0';
+            return;
+        }
+
+        moviesContainer.classList.remove('hidden');
+        emptyMessage.classList.add('hidden');
+        movieCountSpan.innerText = filtered.length;
+
+        // build grid
+        moviesContainer.innerHTML = filtered.map(movie => {
+            const posterPath = movie.poster_path ? IMG_BASE + movie.poster_path : null;
+            const title = movie.title || movie.name || 'Untitled';
+            const releaseYear = movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A';
+            const rating = movie.vote_average ? movie.vote_average.toFixed(1) : '—';
+            const overview = movie.overview && movie.overview.length > 0 ? movie.overview : 'No description available.';
+            return `
+                <div class="movie-card" data-id="${movie.id}">
+                    <div class="poster-wrapper">
+                        ${posterUrl(posterPath, title)}
+                        <div class="movie-year-badge">${releaseYear}</div>
+                    </div>
+                    <div class="movie-info">
+                        <div class="movie-title" title="${escapeHtml(title)}">${escapeHtml(title)}</div>
+                        <div class="movie-meta">
+                            <span class="rating"><i class="fas fa-star"></i> ${rating}</span>
+                            <span><i class="fas fa-calendar"></i> ${releaseYear}</span>
+                        </div>
+                        <div class="overview">${escapeHtml(overview.length > 100 ? overview.slice(0, 100) + '…' : overview)}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function posterUrl(posterPath, title) {
+        if (posterPath) {
+            return `<img class="movie-poster" src="${posterPath}" alt="${escapeHtml(title)} poster" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'fallback-poster\'><i class=\'fas fa-film\'></i></div>';">`;
+        } else {
+            return `<div class="fallback-poster"><i class="fas fa-film"></i></div>`;
+        }
+    }
+
+    // simple escape to avoid xss
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
+
+    // fetch movies based on search query (or trending)
+    async function fetchMovies(query = '') {
+        setLoading(true);
+        try {
+            let endpoint = '';
+            let params = `api_key=${API_KEY}&language=en-US&page=1&region=IN`;
+            if (query && query.trim() !== '') {
+                // search movie by title
+                endpoint = `${BASE_URL}/search/movie?${params}&query=${encodeURIComponent(query.trim())}&include_adult=false`;
+                trendingLabelSpan.innerHTML = `🔍 Search results for “${escapeHtml(query.trim().slice(0, 30))}”`;
+            } else {
+                // trending / popular movies for discovery
+                endpoint = `${BASE_URL}/movie/popular?${params}&page=1`;
+                trendingLabelSpan.innerHTML = `🔥 Popular & trending now`;
+            }
+            const response = await fetch(endpoint);
+            if (!response.ok) throw new Error(`API error ${response.status}`);
+            const data = await response.json();
+            let results = data.results || [];
+            // ensure each movie has necessary fields
+            currentMovies = results;
+            currentQuery = query;
+            // re-apply year filter client side
+            renderMovies();
+        } catch (error) {
+            console.error('Fetch error:', error);
+            moviesContainer.classList.add('hidden');
+            emptyMessage.classList.remove('hidden');
+            emptyMessage.innerHTML = `<i class="fas fa-exclamation-triangle" style="font-size: 2.5rem;"></i><p style="margin-top: 1rem;">Network error or API limit. Check connection or try later.</p><button id="resetEmptyBtn" class="btn-outline" style="margin-top: 1rem;">Retry trending</button>`;
+            // rebind retry button
+            const newRetry = document.getElementById('resetEmptyBtn');
+            if (newRetry) newRetry.addEventListener('click', () => resetToTrending());
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // reset to trending and clear search input & year
+    function resetToTrending() {
+        searchInput.value = '';
+        currentYear = 'all';
+        yearSelect.value = 'all';
+        currentQuery = '';
+        fetchMovies('');
+    }
+
+    // search from input
+    function performSearch() {
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm === '') {
+            resetToTrending();
+        } else {
+            currentYear = yearSelect.value;
+            fetchMovies(searchTerm);
+        }
+    }
+
+    // filter when year changes
+    function onYearChange() {
+        currentYear = yearSelect.value;
+        if (currentMovies.length > 0) {
+            renderMovies();   // client side filtering
+        } else {
+            // if no current movies maybe just trigger load trending on year change? better fetch respecting year?
+            if (currentQuery === '' && currentMovies.length === 0) {
+                fetchMovies('');
+            } else {
+                renderMovies();
+            }
+        }
+    }
+
+    // modal / details on card click (simple alert / expand later)
+    function attachMovieDetailListener() {
+        // event delegation
+        moviesContainer.addEventListener('click', (e) => {
+            const card = e.target.closest('.movie-card');
+            if (!card) return;
+            const movieId = card.getAttribute('data-id');
+            const foundMovie = currentMovies.find(m => m.id == movieId);
+            if (foundMovie) {
+                // extra details: show quick modal using sweet but native alert with nice summary
+                const year = foundMovie.release_date ? new Date(foundMovie.release_date).getFullYear() : 'Unknown';
+                const rating = foundMovie.vote_average ? foundMovie.vote_average.toFixed(1) : 'NR';
+                const overview = foundMovie.overview || 'Synopsis not available.';
+                alert(`🎬 ${foundMovie.title}\n📅 ${year}   ⭐ ${rating}/10\n\n📖 ${overview.slice(0, 280)}${overview.length > 280 ? '…' : ''}`);
+            }
+        });
+    }
+
+    // initial load trending with years populated
+    async function init() {
+        populateYearFilter();
+        attachMovieDetailListener();
+        // handle reset button events
+        resetBtn.addEventListener('click', () => resetToTrending());
+        if (resetEmptyBtn) resetEmptyBtn.addEventListener('click', () => resetToTrending());
+        searchBtn.addEventListener('click', () => performSearch());
+        yearSelect.addEventListener('change', () => onYearChange());
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
+        // fetch trending movies initially
+        await fetchMovies('');
+    }
+
+    // for empty retry dynamic rebinding (ensure)
+    function rebindDynamicRetry() {
+        const possibleRetry = document.getElementById('resetEmptyBtn');
+        if (possibleRetry && possibleRetry !== resetEmptyBtn) {
+            possibleRetry.addEventListener('click', () => resetToTrending());
+        }
+    }
+    setInterval(rebindDynamicRetry, 300);
+    // start
+    init();
+</script>
+</body>
+</html>
